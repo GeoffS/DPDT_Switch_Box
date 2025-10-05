@@ -1,7 +1,7 @@
 include <../OpenSCAD_Lib/MakeInclude.scad>
 include <../OpenSCAD_Lib/chamferedCylinders.scad>
 
-swtichOD = 12;
+switchOD = 12;
 switchNotchX = 1.5;
 switchNotchY = 0.8;
 
@@ -26,21 +26,36 @@ echo(str("boxInteriorX/2 = ", boxInteriorX/2));
 
 module itemModule()
 {
-	cornerX = (boxExteriorX - boxExteriorDia)/2;
-	cornerY = (boxExteriorY - boxExteriorDia)/2;
-	difference()
+	difference() 
 	{
-		// Exterior:
-		mirror([0,0,1]) hull() doubleX() doubleY() translate([cornerX, cornerY, 0]) simpleChamferedCylinder(d=boxExteriorDia, h=boxExteriorZ, cz=boxExteriorCZ);
+		cornerX = (boxExteriorX - boxExteriorDia)/2;
+		cornerY = (boxExteriorY - boxExteriorDia)/2;
 
-		// Interior:
-		mirror([0,0,1]) hull() doubleX() doubleY() translate([cornerX, cornerY, -100+(boxExteriorZ-boxWallZ)]) simpleChamferedCylinder(d=boxInteriorDia, h=100, cz=boxInteriorCZ);
+		// Basic box:
+		translate([0,0,boxInteriorZ]) mirror([0,0,1]) difference()
+		{
+			// Exterior:
+			hull() doubleX() doubleY() translate([cornerX, cornerY, 0]) simpleChamferedCylinder(d=boxExteriorDia, h=boxExteriorZ, cz=boxExteriorCZ);
+
+			// Interior:
+			hull() doubleX() doubleY() translate([cornerX, cornerY, -100+(boxExteriorZ-boxWallZ)]) simpleChamferedCylinder(d=boxInteriorDia, h=100, cz=boxInteriorCZ);
+		}
+
+		// Switch hole:
+		translate([0,0,boxInteriorZ/2]) difference()
+		{
+			// Hole:
+			rotate([-90,0,0]) tcy([0,0,0], d=switchOD, h=100);
+
+			// // Notch:
+			// tcu([switchOD/2-switchNotchY, 10, -switchNotchX/2], [10, 20, switchNotchX]);
+		}
 	}
 }
 
 module clip(d=0)
 {
-	tc([-200, -400-d, -200], 400);
+	// tc([-200, -400-d, -200], 400);
 }
 
 if(developmentRender)
