@@ -1,7 +1,7 @@
 include <../OpenSCAD_Lib/MakeInclude.scad>
 include <../OpenSCAD_Lib/chamferedCylinders.scad>
 
-switchOD = 12;
+switchOD = 12.3;
 switchNotchX = 1.5;
 switchNotchY = 0.8;
 
