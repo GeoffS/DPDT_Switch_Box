@@ -1,6 +1,8 @@
 include <../OpenSCAD_Lib/MakeInclude.scad>
 include <../OpenSCAD_Lib/chamferedCylinders.scad>
 
+layerThickness = 0.2;
+
 switchOD = 12.3;
 switchNotchX = 1.5;
 switchNotchY = 0.8;
@@ -30,6 +32,8 @@ mountingScrewHeadRecesssExtDia = mountingScrewHeadRecesssDia + 5;
 
 mountingScrewHoleCtrX = boxInteriorX + mountingScrewHeadRecesssExtDia/2 + 4;
 
+mountingScrewHeadRecessOffsetZ = 4;
+
 module itemModule()
 {
 	difference() 
@@ -50,10 +54,11 @@ module itemModule()
 			// Interior:
 			hull() doubleX() doubleY() translate([cornerX, cornerY, -100+(boxExteriorZ-boxWallZ)]) simpleChamferedCylinder(d=boxInteriorDia, h=100, cz=boxInteriorCZ);
 
-			doubleX() translate([mountingScrewHoleCtrX/2,0,0])
+			// Mounting screw holes:
+			screwHolesXform()
 			{
 				tcy([0,0,-100], d=mountingScrewHoleDia, h=200);
-				tcy([0,0,4], d=mountingScrewHeadRecesssDia, h=200);
+				tcy([0,0,mountingScrewHeadRecessOffsetZ], d=mountingScrewHeadRecesssDia, h=200);
 			}
 		}
 
@@ -66,7 +71,25 @@ module itemModule()
 			// // Notch:
 			// tcu([switchOD/2-switchNotchY, 10, -switchNotchX/2], [10, 20, switchNotchX]);
 		}
+
+		// Wires exit slot:
+		wireHoleDia = 12;
+		translate([0, -boxExteriorY/2, boxInteriorZ]) rotate([-90,0,0])  hull()
+		{
+			{
+				tcy([0, -2, -10], d=wireHoleDia, h=20);
+				tcy([0,  3, -10], d=wireHoleDia, h=20);
+			}
+		}
 	}
+
+	// Sacrificial layer in screw head recess.
+	screwHolesXform() tcy([0,0,boxInteriorZ-mountingScrewHeadRecessOffsetZ], d=mountingScrewHeadRecesssDia, h=layerThickness);
+}
+
+module screwHolesXform()
+{
+	doubleX() translate([mountingScrewHoleCtrX/2,0,0]) children();
 }
 
 module clip(d=0)
